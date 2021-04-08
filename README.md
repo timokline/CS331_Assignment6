@@ -87,7 +87,6 @@ Caracal is a very small programming language with simple imperative semantics. S
 Caracal has no fatal runtime errors. Caracal programs never crash or terminate abnormally.
 
 Caracal programs have two kinds of side effects: variable modification and I/O. Values of variables—including functions—may be specified by the execution environment when a Caracal program begins. Variable values are returned to the execution environment by the Caracal program for later use. I/O is described next.
-<br></br>
 
 #### __I/O__
 A Caracal program may do text input and output.
@@ -96,8 +95,7 @@ A Caracal program does text input by reading a line of text from the standard in
 
 A Caracal program does text output by printing a string, or integer value converted to a string, to the standard output. Output is done by a *Write statement*.
 
-__!!__ *For information on how to perform text input and output, see [Implementation Notes](#implementation-notes), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on how to perform text input and output, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
 #### __Variables__
 Caracal has three kinds of variables: functions, simple variables, and arrays. These are always named. Distinct identifiers never refer to the same variable. Identifiers for functions, identifiers for simple variables and identifiers for arrays lie in three separate namespaces.
@@ -106,8 +104,8 @@ A simple variable holds an integer value.
 
 An array holds zero or more items, each indexed by an integer, that may have any integer value: positive, negative, or zero. Array dimensions are not specified; every integer index is usable with every array. Each array item holds an integer value. The legal values for a Caracal integer are implementation-defined.
 
-__!!__ *For information on the legal values of a Caracal integer, see [Implementation Notes](#implementation-notes), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on the legal values of a Caracal integer, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
+
 
 A function holds the AST for its body.
 
@@ -125,7 +123,6 @@ The value of a variable that is not defined is its default value, as indicated b
 | Simple Variable  | 0 (`zero`)      |
 | Array Item       | 0 (`zero`)      |
 | Function         | `{ STMT_LIST }` |
-<br></br>
 
 #### __Expressions__
 Caracal expressions are evaluated *eagerly*; that is, expressions are evaluated when they are encountered (as opposed to lazy evaluation).
@@ -134,8 +131,7 @@ The various parts of an expression may be evaluated in any order. The only parts
 
 When a NumericLiteral is encountered in an expression, it is evaluated by converting its string form to a number.
 
-__!!__ *For information on integer conversions, and the method for evaluating a NumericLiteral, see [Implementation Notes](#implementation-notes), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on integer conversions, and the method for evaluating a NumericLiteral, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
 When a variable is encountered in an expression, it is evaluated to its current value in the program state, or its default value (zero) if it is not *defined*.
 
@@ -143,8 +139,7 @@ A function call inside an expression executes the AST that is the value bound to
 
 An `readnum()` call in an expression results in a line being read. The value of the `readnum()` call is the result of converting the string read to an integer.
 
-__!!__ *For information on reading a line and converting a string to an integer, see [Implementation Notes](#implementation-notes), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on reading a line and converting a string to an integer, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
 The result of evaluating an expression involving a Caracal operator is the same as for the Lua operator with the same name, followed by conversion to an integer, with the following exceptions.
 
@@ -163,8 +158,7 @@ A *Write statement* outputs one or more strings to the standard output. For each
   * If the *write argument* is a `char` call, then a number is passed to `char`; call this number `n`. If `n` is not in the range 0 to 255, then set `n` to zero. The string printed is the string created by the following Lua code: “`string.char(n)`”.
   * If the argument of `write` is an expression, then the string printed is the string form of the number resulting from evaluating the expression.
 
-__!!__ *For information on converting the numeric value of an expression to a string, see [Implementation Notes](#implementation-notes), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on converting the numeric value of an expression to a string, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
 When a *Return statement* is executed, the expression after the `return` is evaluated. The simple variable named `return` is set to this value. Note that this is the only way to set the value of this variable. Since “`return`” is a *reserved word, the value of this variable cannot be set in an Assignment statement*. __Executing a *Return statement* does not terminate a function; it only sets the value of a variable.__
 
@@ -176,15 +170,14 @@ A *Function definition* binds the given function identifier to the AST for the g
 
 When an *If statement* is executed, the expression in parentheses after the `if`, along with any expressions after `elseif` that are part of the same statement, are evaluated, in order. If any of these expressions evaluates to a nonzero value, then no more such expressions are evaluated; the corresponding statement list is executed. If none of the expressions evaluates to a nonzero value, and there is an `else`, then its statement list is executed. If no expression evaluates to a nonzero value, and there is no `else`, then the *If statement* has no effect.
 
-__!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation-notes), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on determining whether the value of an expression is nonzero, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
 A *For loop* has a “`for`” followed by three things in parentheses. Let us call these three the *initialization*, the *condition*, and the *increment*, respectively.
 
 When a *For loop* is executed, the *initialization* is executed (or nothing is done if the *initialization* is omitted). Then the following actions are executed repetitively. The *condition* is evaluated (unless it is omitted). If this value is zero, then execution of the *For loop* terminates. If this vaue is nonzero, or if the *condition* is omitted, then the statement list is executed, followed by the *increment* (or nothing is done, if the *increment* it is omitted). The execution of the repetitive portion then begins again.
 
-__!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation), below.* __!!__
-<br></br>
+<p><div align="center"><strong>!!</strong> <em>For information on determining whether the value of an expression is nonzero, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
+
 * * *
 
 ### Implementation Notes
@@ -207,7 +200,6 @@ In the file `interpit.lua`, provided are five utility functions: `numToInt`, `st
   : This should be used for all Boolean → number conversions. In particular, it should be used when evaluating an expression involving one of the comparison or logical operators (`== != < <= > >= && || !`), to convert the Boolean returned by the Lua operator to the integer that Caracal requires.
 * `astToStr`
   : This is provided for use in __debugging only__; it should never be called in the final version of your code. This function takes a Caracal AST. It returns a human-readable string form of the AST, suitable for printing.
-<br></br>
 * * *
 
 ### Provided Code
