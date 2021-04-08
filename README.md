@@ -18,7 +18,7 @@ Write a Lua module that implements an interpreter for ASTs resulting from parsin
   * All I/O performed by function `interp` must be done via calls to the passed functions `incall` and `outcall`.
   * Function `interp` does not need to do any error checking. You may assume that the given AST is correctly formatted. Further, as explained in *[Semantics](#semantics)*, below, the semantics of Caracal includes no fatal runtime errors. Thus, a Caracal program never terminates abnormally; function `interp` does not need to do any error reporting.
 
-### State {#state}
+### State
 * __Caracal Variables__ : The Caracal programming language stores only integer values and functions. Integers can be stored in simple variables or in array items.
 
 Arrays do not have specified dimensions; every integer is a legal index for every array. This includes negative integers.
@@ -46,8 +46,9 @@ The `state` table, as modified by the execution of the Caracal program, should b
 
 * __Justification__ : The above may seem a bit mysterious. Why would variables be given values before the execution of a program? The reason for this is to allow a Caracal program to be entered interactively, as a series of statements, each of which is parsed and executed separately. Maintaining the state from one program to the next allows such statements to have the same effect as they would if they were parsed and executed as a single program.
 
+* * *
 
-### Semantics {#semantics}
+### Semantics
 
 The semantics of Caracal is specified here, using informal methods. A formal syntax of Caracal and the format of an AST were covered in [Assignment 4](https://www.cs.uaf.edu/~chappell/class/2021_spr/cs331/docs/p-assn04d.html#syntax).
 
@@ -63,7 +64,7 @@ A Caracal program does text input by reading a line of text from the standard in
 
 A Caracal program does text output by printing a string, or integer value converted to a string, to the standard output. Output is done by a *Write statement*.
 
-__!!__ *For information on how to perform text input and output, see [Implementation Notes](#implementation), below.* __!!__
+__!!__ *For information on how to perform text input and output, see [Implementation Notes](#implementation-notes), below.* __!!__
 
 * __Variables__ : Caracal has three kinds of variables: functions, simple variables, and arrays. These are always named. Distinct identifiers never refer to the same variable. Identifiers for functions, identifiers for simple variables and identifiers for arrays lie in three separate namespaces.
 
@@ -71,7 +72,7 @@ A simple variable holds an integer value.
 
 An array holds zero or more items, each indexed by an integer, that may have any integer value: positive, negative, or zero. Array dimensions are not specified; every integer index is usable with every array. Each array item holds an integer value. The legal values for a Caracal integer are implementation-defined.
 
-__!!__ *For information on the legal values of a Caracal integer, see [Implementation Notes](#implementation), below.* __!!__
+__!!__ *For information on the legal values of a Caracal integer, see [Implementation Notes](#implementation-notes), below.* __!!__
 
 A function holds the AST for its body.
 
@@ -96,7 +97,7 @@ The various parts of an expression may be evaluated in any order. The only parts
 
 When a NumericLiteral is encountered in an expression, it is evaluated by converting its string form to a number.
 
-__!!__ *For information on integer conversions, and the method for evaluating a NumericLiteral, see [Implementation Notes](#implementation), below.* __!!__
+__!!__ *For information on integer conversions, and the method for evaluating a NumericLiteral, see [Implementation Notes](#implementation-notes), below.* __!!__
 
 When a variable is encountered in an expression, it is evaluated to its current value in the program state, or its default value (zero) if it is not *defined*.
 
@@ -104,7 +105,7 @@ A function call inside an expression executes the AST that is the value bound to
 
 An `readnum()` call in an expression results in a line being read. The value of the `readnum()` call is the result of converting the string read to an integer.
 
-__!!__ *For information on reading a line and converting a string to an integer, see [Implementation Notes](#implementation), below.* __!!__
+__!!__ *For information on reading a line and converting a string to an integer, see [Implementation Notes](#implementation-notes), below.* __!!__
 
 The result of evaluating an expression involving a Caracal operator is the same as for the Lua operator with the same name, followed by conversion to an integer, with the following exceptions.
 
@@ -122,7 +123,7 @@ A *Write statement* outputs one or more strings to the standard output. For each
   * If the *write argument* is a `char` call, then a number is passed to `char`; call this number `n`. If `n` is not in the range 0 to 255, then set `n` to zero. The string printed is the string created by the following Lua code: “`string.char(n)`”.
   * If the argument of `write` is an expression, then the string printed is the string form of the number resulting from evaluating the expression.
 
-__!!__ *For information on converting the numeric value of an expression to a string, see [Implementation Notes](#implementation), below.* __!!__
+__!!__ *For information on converting the numeric value of an expression to a string, see [Implementation Notes](#implementation-notes), below.* __!!__
 
 When a *Return statement* is executed, the expression after the `return` is evaluated. The simple variable named `return` is set to this value. Note that this is the only way to set the value of this variable. Since “`return`” is a *reserved word, the value of this variable cannot be set in an Assignment statement*. __Executing a *Return statement* does not terminate a function; it only sets the value of a variable.__
 
@@ -134,7 +135,7 @@ A *Function definition* binds the given function identifier to the AST for the g
 
 When an *If statement* is executed, the expression in parentheses after the `if`, along with any expressions after `elseif` that are part of the same statement, are evaluated, in order. If any of these expressions evaluates to a nonzero value, then no more such expressions are evaluated; the corresponding statement list is executed. If none of the expressions evaluates to a nonzero value, and there is an `else`, then its statement list is executed. If no expression evaluates to a nonzero value, and there is no `else`, then the *If statement* has no effect.
 
-__!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation), below.* __!!__
+__!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation-notes), below.* __!!__
 
 A *For loop* has a “`for`” followed by three things in parentheses. Let us call these three the *initialization*, the *condition*, and the *increment*, respectively.
 
@@ -142,7 +143,7 @@ When a *For loop* is executed, the *initialization* is executed (or nothing is d
 
 __!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation), below.* __!!__
 
-### Implementation Notes {#implementation}
+### Implementation Notes
 
 All text input and output in a Caracal program should be done by calling the passed functions `incall` and `outcall`. The former inputs a line of text and returns it, without the newline. The latter outputs the given string; no newline is added.
 
