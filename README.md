@@ -8,39 +8,51 @@ Write a Lua module that implements an interpreter for ASTs resulting from parsin
 * * *
 
 ### Instructions
-* Name your module `interpit`, and implement it in the file `interpit.lua`.
-* The interface of module `interpit` consists of a single function `interp`.
+<ul>
+  <li>Name your module <code>interpit</code>, and implement it in the file <code>interpit.lua</code>.</li>
+  <li>The interface of module <code>interpit</code> consists of a single function <code>interp</code>.</li>
+  <ul>
+    <li>Function <code>interp</code> takes the following four parameters.</li>
+    <ul>
+      <dl>
+        <li><dt><code>ast</code></dt></li>
+        <dd>The AST of a Caracal program, as returned by parseit.parse. </dd>
+        <li><dt><code>state</code></dt></li>
+        <dd>A Lua table holding the initial state of the Caracal program: values of all variables: simple variables, array items, and functions. See <em><a href="#state">State</a></em>, below.</dd>
+        <li><dt><code>incall</code></dt></li>
+        <dd>A Lua function that inputs (or acts like it inputs) a line of text from the user. This function takes no parameters. It returns the input line as a string with no trailing newline.</dd>
+        <li><dt><code>outcall</code></dt></li>
+        <dd>A Lua function that outputs (or acts like it outputs) a string. This function takes one parameter: the string to output. It returns nothing. You may assume that this function outputs the string in the manner of <code>io.write</code>: output goes to the standard output, and no newline is added.</dd>
+      </dl>
+    </ul>
+  </ul>
 
-  * Function `interp` takes the following four parameters.
-<dl>
-  <dt>`ast`</dt>
-  <dd>The AST of a Caracal program, as returned by parseit.parse. </dd>
-  <dt>`state`</dt>
-  <dd>A Lua table holding the initial state of the Caracal program: values of all variables: simple variables, array items, and functions. See *[State](#state)*, below.</dd>
-  <dt>`incall`</dt>
-  <dd>A Lua function that inputs (or acts like it inputs) a line of text from the user. This function takes no parameters. It returns the input line as a string with no trailing newline.</dd>
-  <dt>`outcall`</dt>
-  <dd>A Lua function that outputs (or acts like it outputs) a string. This function takes one parameter: the string to output. It returns nothing. You may assume that this function outputs the string in the manner of `io.write`: output goes to the standard output, and no newline is added.</dd>
-</dl>
-  * Function `interp` returns the `state` parameter, modified as appropriate by the execution of the Caracal program. See *[State](#state)*, below.
-  * Function `interp` should execute the given AST based on the semantics of the Caracal programming language. See *[Semantics](#semantics)*, below.
-  * All I/O performed by function `interp` must be done via calls to the passed functions `incall` and `outcall`.
-  * Function `interp` does not need to do any error checking. You may assume that the given AST is correctly formatted. Further, as explained in *[Semantics](#semantics)*, below, the semantics of Caracal includes no fatal runtime errors. Thus, a Caracal program never terminates abnormally; function `interp` does not need to do any error reporting.
+  <li>Function <code>interp</code> returns the <code>state</code> parameter, modified as appropriate by the execution of the Caracal program. See <em><a href="#state">State</a></em>, below.</li>
+  <li>Function <code>interp</code> should execute the given AST based on the semantics of the Caracal programming language. See <em><a href="#semantics">Semantics</a></em>, below.</li>
+  <li>All I/O performed by function <code>interp</code> must be done via calls to the passed functions <code>incall</code> and <code>outcall</code>.</li>
+  <li>Function <code>interp</code> does not need to do any error checking. You may assume that the given AST is correctly formatted. Further, as explained in <em><a href="#semantics">Semantics</a></em>, below, the semantics of Caracal includes no fatal runtime errors. Thus, a Caracal program never terminates abnormally; function <code>interp</code> does not need to do any error reporting.</li>
+</ul>
 
 * * *
 
 ### State
-* __Caracal Variables__ : The Caracal programming language stores only integer values and functions. Integers can be stored in simple variables or in array items.
+<dl>
+  <dt><strong>Caracal Variables</strong></dt>
+  <dd>The Caracal programming language stores only integer values and functions. Integers can be stored in simple variables or in array items.</dd>
 
-Arrays do not have specified dimensions; every integer is a legal index for every array. This includes negative integers.
-
-* __The `state` Table__ : Values of all *defined* Caracal variables and functions are stored in a Lua table named `state`. This table has three members: `f`, a table that holds functions, `v`, a table that holds simple variables, and `a`, a table that holds arrays.
+  <dd>Arrays do not have specified dimensions; every integer is a legal index for every array. This includes negative integers.</dd>
+  <p></p>
+  <dt><strong>The <code>state</code> Table</strong></dt>
+  <dd>Values of all <em>defined</em> Caracal variables and functions are stored in a Lua table named <code>state</code>. This table has three members: <code>f</code>, a table that holds functions, <code>v</code>, a table that holds simple variables, and <code>a</code>, a table that holds arrays.</dd>
+</dl>
+  <ul>
 
   * A Caracal function is stored as a key-value pair in the `state.f` table. The key is a string holding the name of the function. The associated value is a Lua table holding the AST of the function body, in the same form as the AST returned by `parseit.parse`.
 
   * A Caracal simple variable is stored as a key-value pair in the `state.v` table. The key is a string holding the name of the variable. The associated value is a number equal to the variable’s numeric value.
 
   * A Caracal array is stored as a key-value pair in the `state.a` table. The key is a string holding the name of the array. The associated value is a Lua table holding the array items. In this table, each defined item is stored as a key-value pair. The key is a number equal to the index of the item. The associated value is a number equal to the variable’s numeric value.
+  </ul>
 
 Below are examples of where values are stored.
 | Kind of Variable | Example   | Where the Value is Stored |
@@ -51,11 +63,15 @@ Below are examples of where values are stored.
 | Array Item       | `xyz[0]`  | `state.a["xyz"][0]`       |
 |                  | `xyz[-2]` | `state.a["xyz"][-2]`      |
 
-* __Passing and Return__ : A `state` table is passed to function `interp`. This will always contain members `f`, `v`, and `a`. It may or may not include defined variables/functions. Variables that already have values in `state` should be treated exactly as if their values were set by previous *Assignment* statements.
+<dl>
+  <dt><strong>Passing and Return</strong></dt>
+  <dd>A <code>state</code> table is passed to function <code>interp</code>. This will always contain members <code>f</code>, <code>v</code>, and <code>a</code>. It may or may not include defined variables/functions. Variables that already have values in <code>state</code> should be treated exactly as if their values were set by previous <em>Assignment</em> statements.</dd>
 
-The `state` table, as modified by the execution of the Caracal program, should be returned by function `interp`. All variables given in the initial table should still be defined in the returned state table; Caracal variables are never deleted. If a variable was set by the Caracal program, then its value in the returned table should be its final value in the program. Otherwise, it should be the same as it was initially.
-
-* __Justification__ : The above may seem a bit mysterious. Why would variables be given values before the execution of a program? The reason for this is to allow a Caracal program to be entered interactively, as a series of statements, each of which is parsed and executed separately. Maintaining the state from one program to the next allows such statements to have the same effect as they would if they were parsed and executed as a single program.
+  <dd>The <code>state</code> table, as modified by the execution of the Caracal program, should be returned by function <code>interp</code>. All variables given in the initial table should still be defined in the returned state table; Caracal variables are never deleted. If a variable was set by the Caracal program, then its value in the returned table should be its final value in the program. Otherwise, it should be the same as it was initially.</dd>
+  <p></p>
+  <dt><strong>Justification</strong></dt>
+  <dd>The above may seem a bit mysterious. Why would variables be given values before the execution of a program? The reason for this is to allow a Caracal program to be entered interactively, as a series of statements, each of which is parsed and executed separately. Maintaining the state from one program to the next allows such statements to have the same effect as they would if they were parsed and executed as a single program.</dd>
+</dl>
 
 * * *
 
@@ -63,27 +79,35 @@ The `state` table, as modified by the execution of the Caracal program, should b
 
 The semantics of Caracal is specified here, using informal methods. A formal syntax of Caracal and the format of an AST were covered in [Assignment 4](https://www.cs.uaf.edu/~chappell/class/2021_spr/cs331/docs/p-assn04d.html#syntax).
 
-* __General__ : Caracal is a very small programming language with simple imperative semantics. Statements are executed in order, first to last, as modified by the three flow-of-control structures: *If statement*, *For loop*, and *Function call*. The current statement must be executed completely, with all side effects completed, before execution of the next statement begins. When the last statement has executed, program execution terminates, with the current state being returned to the execution environment.
+
+#### __General__
+
+Caracal is a very small programming language with simple imperative semantics. Statements are executed in order, first to last, as modified by the three flow-of-control structures: `If statement`, `For loop`, and `Function call`. The current statement must be executed completely, with all side effects completed, before execution of the next statement begins. When the last statement has executed, program execution terminates, with the current state being returned to the execution environment.
 
 Caracal has no fatal runtime errors. Caracal programs never crash or terminate abnormally.
 
 Caracal programs have two kinds of side effects: variable modification and I/O. Values of variables—including functions—may be specified by the execution environment when a Caracal program begins. Variable values are returned to the execution environment by the Caracal program for later use. I/O is described next.
+<br></br>
 
-* __I/O__ : A Caracal program may do text input and output.
+#### __I/O__
+A Caracal program may do text input and output.
 
 A Caracal program does text input by reading a line of text from the standard input and interpreting this as an integer value. If the input does not represent an integer, then it is interpreted as zero. Input is done by an `readnum()` call in an expression.
 
 A Caracal program does text output by printing a string, or integer value converted to a string, to the standard output. Output is done by a *Write statement*.
 
 __!!__ *For information on how to perform text input and output, see [Implementation Notes](#implementation-notes), below.* __!!__
+<br></br>
 
-* __Variables__ : Caracal has three kinds of variables: functions, simple variables, and arrays. These are always named. Distinct identifiers never refer to the same variable. Identifiers for functions, identifiers for simple variables and identifiers for arrays lie in three separate namespaces.
+#### __Variables__
+Caracal has three kinds of variables: functions, simple variables, and arrays. These are always named. Distinct identifiers never refer to the same variable. Identifiers for functions, identifiers for simple variables and identifiers for arrays lie in three separate namespaces.
 
 A simple variable holds an integer value.
 
 An array holds zero or more items, each indexed by an integer, that may have any integer value: positive, negative, or zero. Array dimensions are not specified; every integer index is usable with every array. Each array item holds an integer value. The legal values for a Caracal integer are implementation-defined.
 
 __!!__ *For information on the legal values of a Caracal integer, see [Implementation Notes](#implementation-notes), below.* __!!__
+<br></br>
 
 A function holds the AST for its body.
 
@@ -101,14 +125,17 @@ The value of a variable that is not defined is its default value, as indicated b
 | Simple Variable  | 0 (`zero`)      |
 | Array Item       | 0 (`zero`)      |
 | Function         | `{ STMT_LIST }` |
+<br></br>
 
-* __Expressions__ :  Caracal expressions are evaluated *eagerly*; that is, expressions are evaluated when they are encountered (as opposed to lazy evaluation).
+#### __Expressions__
+Caracal expressions are evaluated *eagerly*; that is, expressions are evaluated when they are encountered (as opposed to lazy evaluation).
 
 The various parts of an expression may be evaluated in any order. The only parts of an expression that may have side effects are function calls and `readnum()` calls; other parts of an expression have no side effects. In particular, the fact that the value of a variable is used in an expression, does not cause the variable to become *defined*.
 
 When a NumericLiteral is encountered in an expression, it is evaluated by converting its string form to a number.
 
 __!!__ *For information on integer conversions, and the method for evaluating a NumericLiteral, see [Implementation Notes](#implementation-notes), below.* __!!__
+<br></br>
 
 When a variable is encountered in an expression, it is evaluated to its current value in the program state, or its default value (zero) if it is not *defined*.
 
@@ -117,6 +144,7 @@ A function call inside an expression executes the AST that is the value bound to
 An `readnum()` call in an expression results in a line being read. The value of the `readnum()` call is the result of converting the string read to an integer.
 
 __!!__ *For information on reading a line and converting a string to an integer, see [Implementation Notes](#implementation-notes), below.* __!!__
+<br></br>
 
 The result of evaluating an expression involving a Caracal operator is the same as for the Lua operator with the same name, followed by conversion to an integer, with the following exceptions.
 
@@ -126,7 +154,8 @@ The result of evaluating an expression involving a Caracal operator is the same 
   * Caracal has a unary `+` operator, but Lua does not. The Caracal unary `+` operator simply returns its operand unchanged. So, for example, in Caracal, `+x` has the same value as `x`.
   * To evaluate an array item in an expression, first evaluate the expression between brackets; use the result as the index for an item in the array with the given name. The value is the value of this array item, or its default value (zero) if it is not *defined*.
 
-* __Statements__ : Caracal has seven kinds of statements: *Write statement*, *Return statement*, *Function call*, *Assignment statement*, *Function definition*, *If statement*, and *For loop*. We discuss the semantics of each of these.
+#### __Statements__
+Caracal has seven kinds of statements: *Write statement*, *Return statement*, *Function call*, *Assignment statement*, *Function definition*, *If statement*, and *For loop*. We discuss the semantics of each of these.
 
 A *Write statement* outputs one or more strings to the standard output. For each *write argument*, one string is output.
 
@@ -135,6 +164,7 @@ A *Write statement* outputs one or more strings to the standard output. For each
   * If the argument of `write` is an expression, then the string printed is the string form of the number resulting from evaluating the expression.
 
 __!!__ *For information on converting the numeric value of an expression to a string, see [Implementation Notes](#implementation-notes), below.* __!!__
+<br></br>
 
 When a *Return statement* is executed, the expression after the `return` is evaluated. The simple variable named `return` is set to this value. Note that this is the only way to set the value of this variable. Since “`return`” is a *reserved word, the value of this variable cannot be set in an Assignment statement*. __Executing a *Return statement* does not terminate a function; it only sets the value of a variable.__
 
@@ -147,13 +177,14 @@ A *Function definition* binds the given function identifier to the AST for the g
 When an *If statement* is executed, the expression in parentheses after the `if`, along with any expressions after `elseif` that are part of the same statement, are evaluated, in order. If any of these expressions evaluates to a nonzero value, then no more such expressions are evaluated; the corresponding statement list is executed. If none of the expressions evaluates to a nonzero value, and there is an `else`, then its statement list is executed. If no expression evaluates to a nonzero value, and there is no `else`, then the *If statement* has no effect.
 
 __!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation-notes), below.* __!!__
+<br></br>
 
 A *For loop* has a “`for`” followed by three things in parentheses. Let us call these three the *initialization*, the *condition*, and the *increment*, respectively.
 
 When a *For loop* is executed, the *initialization* is executed (or nothing is done if the *initialization* is omitted). Then the following actions are executed repetitively. The *condition* is evaluated (unless it is omitted). If this value is zero, then execution of the *For loop* terminates. If this vaue is nonzero, or if the *condition* is omitted, then the statement list is executed, followed by the *increment* (or nothing is done, if the *increment* it is omitted). The execution of the repetitive portion then begins again.
 
 __!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation), below.* __!!__
-
+<br></br>
 * * *
 
 ### Implementation Notes
@@ -176,6 +207,8 @@ In the file `interpit.lua`, provided are five utility functions: `numToInt`, `st
   : This should be used for all Boolean → number conversions. In particular, it should be used when evaluating an expression involving one of the comparison or logical operators (`== != < <= > >= && || !`), to convert the Boolean returned by the Lua operator to the integer that Caracal requires.
 * `astToStr`
   : This is provided for use in __debugging only__; it should never be called in the final version of your code. This function takes a Caracal AST. It returns a human-readable string form of the AST, suitable for printing.
+<br></br>
+* * *
 
 ### Provided Code
 
