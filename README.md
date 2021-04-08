@@ -1,13 +1,17 @@
 # [Assignment6](https://www.cs.uaf.edu/users/chappell/public_html/class/2021_spr/cs331/docs/p-assn06d.html)
+
 ## Exercise A: Running a Prolog Program
+
 Test to execute Prolog code (not included in repo).
 
 ## Exercise B: Interpreter in Lua
+
 Write a Lua module that implements an interpreter for ASTs resulting from parsing the Caracal programming language. The interpreter will not directly use the Caracal parser written previously. Instead, the interpreter will be given the AST of a Caracal program. When the interpreter is combined with a parser for Caracal (`lexit.lua` & `parseit.lua`) and an application that glues them all together (`caracal.lua`), the result will be a complete interpreter than can take Caracal source code and execute it.
 
 * * *
 
 ### Instructions
+
 <ul>
   <li>Name your module <code>interpit</code>, and implement it in the file <code>interpit.lua</code>.</li>
   <li>The interface of module <code>interpit</code> consists of a single function <code>interp</code>.</li>
@@ -36,6 +40,7 @@ Write a Lua module that implements an interpreter for ASTs resulting from parsin
 * * *
 
 ### State
+
 <dl>
   <dt><strong>Caracal Variables</strong></dt>
   <dd>The Caracal programming language stores only integer values and functions. Integers can be stored in simple variables or in array items.</dd>
@@ -47,11 +52,12 @@ Write a Lua module that implements an interpreter for ASTs resulting from parsin
 </dl>
   <ul>
 
-  * A Caracal function is stored as a key-value pair in the `state.f` table. The key is a string holding the name of the function. The associated value is a Lua table holding the AST of the function body, in the same form as the AST returned by `parseit.parse`.
+* A Caracal function is stored as a key-value pair in the `state.f` table. The key is a string holding the name of the function. The associated value is a Lua table holding the AST of the function body, in the same form as the AST returned by `parseit.parse`.
 
-  * A Caracal simple variable is stored as a key-value pair in the `state.v` table. The key is a string holding the name of the variable. The associated value is a number equal to the variable’s numeric value.
+* A Caracal simple variable is stored as a key-value pair in the `state.v` table. The key is a string holding the name of the variable. The associated value is a number equal to the variable’s numeric value.
 
-  * A Caracal array is stored as a key-value pair in the `state.a` table. The key is a string holding the name of the array. The associated value is a Lua table holding the array items. In this table, each defined item is stored as a key-value pair. The key is a number equal to the index of the item. The associated value is a number equal to the variable’s numeric value.
+* A Caracal array is stored as a key-value pair in the `state.a` table. The key is a string holding the name of the array. The associated value is a Lua table holding the array items. In this table, each defined item is stored as a key-value pair. The key is a number equal to the index of the item. The associated value is a number equal to the variable’s numeric value.
+
   </ul>
 
 Below are examples of where values are stored.
@@ -79,7 +85,6 @@ Below are examples of where values are stored.
 
 The semantics of Caracal is specified here, using informal methods. A formal syntax of Caracal and the format of an AST were covered in [Assignment 4](https://www.cs.uaf.edu/~chappell/class/2021_spr/cs331/docs/p-assn04d.html#syntax).
 
-
 #### __General__
 
 Caracal is a very small programming language with simple imperative semantics. Statements are executed in order, first to last, as modified by the three flow-of-control structures: `If statement`, `For loop`, and `Function call`. The current statement must be executed completely, with all side effects completed, before execution of the next statement begins. When the last statement has executed, program execution terminates, with the current state being returned to the execution environment.
@@ -89,6 +94,7 @@ Caracal has no fatal runtime errors. Caracal programs never crash or terminate a
 Caracal programs have two kinds of side effects: variable modification and I/O. Values of variables—including functions—may be specified by the execution environment when a Caracal program begins. Variable values are returned to the execution environment by the Caracal program for later use. I/O is described next.
 
 #### __I/O__
+
 A Caracal program may do text input and output.
 
 A Caracal program does text input by reading a line of text from the standard input and interpreting this as an integer value. If the input does not represent an integer, then it is interpreted as zero. Input is done by an `readnum()` call in an expression.
@@ -98,6 +104,7 @@ A Caracal program does text output by printing a string, or integer value conver
 <p><div align="center"><strong>!!</strong> <em>For information on how to perform text input and output, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
 #### __Variables__
+
 Caracal has three kinds of variables: functions, simple variables, and arrays. These are always named. Distinct identifiers never refer to the same variable. Identifiers for functions, identifiers for simple variables and identifiers for arrays lie in three separate namespaces.
 
 A simple variable holds an integer value.
@@ -105,7 +112,6 @@ A simple variable holds an integer value.
 An array holds zero or more items, each indexed by an integer, that may have any integer value: positive, negative, or zero. Array dimensions are not specified; every integer index is usable with every array. Each array item holds an integer value. The legal values for a Caracal integer are implementation-defined.
 
 <p><div align="center"><strong>!!</strong> <em>For information on the legal values of a Caracal integer, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
-
 
 A function holds the AST for its body.
 
@@ -125,6 +131,7 @@ The value of a variable that is not defined is its default value, as indicated b
 | Function         | `{ STMT_LIST }` |
 
 #### __Expressions__
+
 Caracal expressions are evaluated *eagerly*; that is, expressions are evaluated when they are encountered (as opposed to lazy evaluation).
 
 The various parts of an expression may be evaluated in any order. The only parts of an expression that may have side effects are function calls and `readnum()` calls; other parts of an expression have no side effects. In particular, the fact that the value of a variable is used in an expression, does not cause the variable to become *defined*.
@@ -143,20 +150,21 @@ An `readnum()` call in an expression results in a line being read. The value of 
 
 The result of evaluating an expression involving a Caracal operator is the same as for the Lua operator with the same name, followed by conversion to an integer, with the following exceptions.
 
-  * Division by zero. If the second operand of a division (`/`) or modulus (`%`) operator is zero, then the operator should return zero.
-  * Caracal has no separate Boolean type. Caracal comparison operators return `1` on true and `0` on false.
-  * The Caracal `!=` operator corresponds to the Lua inequality operator (`~=`).
-  * Caracal has a unary `+` operator, but Lua does not. The Caracal unary `+` operator simply returns its operand unchanged. So, for example, in Caracal, `+x` has the same value as `x`.
-  * To evaluate an array item in an expression, first evaluate the expression between brackets; use the result as the index for an item in the array with the given name. The value is the value of this array item, or its default value (zero) if it is not *defined*.
+* Division by zero. If the second operand of a division (`/`) ormodulus (`%`) operator is zero, then the operator should return zero.
+* Caracal has no separate Boolean type. Caracal comparison operatorsreturn `1` on true and `0` on false.
+* The Caracal `!=` operator corresponds to the Lua inequalityoperator (`~=`).
+* Caracal has a unary `+` operator, but Lua does not. The Caracalunary `+` operator simply returns its operand unchanged. So, forexample, in Caracal, `+x` has the same value as `x`.
+* To evaluate an array item in an expression, first evaluate theexpression between brackets; use the result as the index for an itemin the array with the given name. The value is the value of thisarray item, or its default value (zero) if it is not *defined*.
 
 #### __Statements__
+
 Caracal has seven kinds of statements: *Write statement*, *Return statement*, *Function call*, *Assignment statement*, *Function definition*, *If statement*, and *For loop*. We discuss the semantics of each of these.
 
 A *Write statement* outputs one or more strings to the standard output. For each *write argument*, one string is output.
 
-  * If the *write argument* is a StringLiteral lexeme, then the string printed is the StringLiteral with its leading and trailing quote marks removed.
-  * If the *write argument* is a `char` call, then a number is passed to `char`; call this number `n`. If `n` is not in the range 0 to 255, then set `n` to zero. The string printed is the string created by the following Lua code: “`string.char(n)`”.
-  * If the argument of `write` is an expression, then the string printed is the string form of the number resulting from evaluating the expression.
+* If the *write argument* is a StringLiteral lexeme, then the stringprinted is the StringLiteral with its leading and trailing quotemarks removed.
+* If the *write argument* is a `char` call, then a number is passedto `char`; call this number `n`. If `n` is not in the range 0 to 255,then set `n` to zero. The string printed is the string created by thefollowing Lua code: “`string.char(n)`”.
+* If the argument of `write` is an expression, then the stringprinted is the string form of the number resulting from evaluatingthe expression.
 
 <p><div align="center"><strong>!!</strong> <em>For information on converting the numeric value of an expression to a string, see <em><a href="#implementation-notes">Implementation Notes</a></em>, below.</em> <strong>!!</strong></div></p>
 
@@ -190,16 +198,12 @@ When executing an *If statement* or *For loop*, to determine whether a Caracal e
 
 In the file `interpit.lua`, provided are five utility functions: `numToInt`, `strToNum`, `numToStr`, `boolToInt`, and `astToStr`. __Do not modify these functions!__ They should be used as follows:
 
-* `numToInt`
-  : When evaluating an expression involving one of the arithmetic operators (`+ - * / %`), the number returned by the Lua operator should be passed to this function; the return value of numToInt is the actual result of the Caracal computation. For example, the result of evaluating the Caracal expression `42/10` can be computing in Lua using `numToInt(strToNum("42")/strToNum("10"))`.
-* `strToNum`
-  : This should be used for all string → number conversions. In particular, it should be used when executing a `readnum()` call, to convert the entered string to a number. And it should be used when evaluating NumericLiteral lexemes.
-* `numToStr`
-  : This should be used for all number → string conversions. In particular, it should be used when executing a *Print statement* whose argument is an expression, to convert the result of evaluating the expression into a string to be output.
-* `boolToInt`
-  : This should be used for all Boolean → number conversions. In particular, it should be used when evaluating an expression involving one of the comparison or logical operators (`== != < <= > >= && || !`), to convert the Boolean returned by the Lua operator to the integer that Caracal requires.
-* `astToStr`
-  : This is provided for use in __debugging only__; it should never be called in the final version of your code. This function takes a Caracal AST. It returns a human-readable string form of the AST, suitable for printing.
+* `numToInt`: When evaluating an expression involving one of the arithmetic operators (`+ - * / %`), the number returned by the Lua operator should be passed to this function; the return value of numToInt is the actual result of the Caracal computation. For example, the result of evaluating the Caracal expression `42/10` can be computing in Lua using `numToInt(strToNum("42")/strToNum("10"))`.
+* `strToNum`: This should be used for all string → number conversions. In particular, it should be used when executing a `readnum()` call, to convert the entered string to a number. And it should be used when evaluating NumericLiteral lexemes.
+* `numToStr`: This should be used for all number → string conversions. In particular, it should be used when executing a *Print statement* whose argument is an expression, to convert the result of evaluating the expression into a string to be output.
+* `boolToInt`: This should be used for all Boolean → number conversions. In particular, it should be used when evaluating an expression involving one of the comparison or logical operators (`== != < <= > >= && || !`), to convert the Boolean returned by the Lua operator to the integer that Caracal requires.
+* `astToStr`: This is provided for use in __debugging only__; it should never be called in the final version of your code. This function takes a Caracal AST. It returns a human-readable string form of the AST, suitable for printing.
+
 * * *
 
 ### Provided Code
@@ -208,9 +212,9 @@ I have provided a partially written version of file `interpit.lua`. This include
 
 I have also written a Lua application that uses the `lexit`, `parseit`, and `interpit` modules, forming a complete Caracal source-code interpreter: `caracal.lua`. When `caracal.lua` is executed, it displays a prompt (“`>>>`”). At this prompt, type either Caracal code or a command beginning with “`:`” (these are listed when the program starts up). In particular, typing “`:r` *FILENAME*”, where *FILENAME* is the filename of a Caracal program (source file), will execute the program.
 
-  * If the Caracal code forms the beginning of a correct program, but it is not a complete program, then another prompt is given (“`...`”), and more Caracal code may be entered.
-  * If a syntax error is found in the entered code, then an error message is printed, and input restarts.
-  * If a complete Caracal program has been entered, then it is executed. Any I/O it performs takes place on the console. When execution completes, input restarts, but the Caracal state is not reset; it is the state returned by the program that was executed.
+* If the Caracal code forms the beginning of a correct program, butit is not a complete program, then another prompt is given (“`...`”),and more Caracal code may be entered.
+* If a syntax error is found in the entered code, then an errormessage is printed, and input restarts.
+* If a complete Caracal program has been entered, then it isexecuted. Any I/O it performs takes place on the console. Whenexecution completes, input restarts, but the Caracal state is notreset; it is the state returned by the program that was executed.
 
 If you have access to a Unix-like command line, then you may also pass the source filename to `caracal.lua` as a command-line parameter.
 
@@ -222,4 +226,4 @@ Because of the above, the shebang convention may be used with `caracal.lua`, if 
 
 &nbsp;&nbsp;&nbsp;&nbsp;`#!./caracal.lua`
 
-The resulting file should be executed with `caracal.lua` in the same directory. Note that, since Caracal comments begin with the pound sign (`#`), the shebang line will be ignored when the Caracal source file is parsed. 
+The resulting file should be executed with `caracal.lua` in the same directory. Note that, since Caracal comments begin with the pound sign (`#`), the shebang line will be ignored when the Caracal source file is parsed.
