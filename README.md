@@ -5,18 +5,29 @@ Test to execute Prolog code (not included in repo).
 ## Exercise B: Interpreter in Lua
 Write a Lua module that implements an interpreter for ASTs resulting from parsing the Caracal programming language. The interpreter will not directly use the Caracal parser written previously. Instead, the interpreter will be given the AST of a Caracal program. When the interpreter is combined with a parser for Caracal (`lexit.lua` & `parseit.lua`) and an application that glues them all together (`caracal.lua`), the result will be a complete interpreter than can take Caracal source code and execute it.
 
+* * *
+
 ### Instructions
 * Name your module `interpit`, and implement it in the file `interpit.lua`.
 * The interface of module `interpit` consists of a single function `interp`.
+
   * Function `interp` takes the following four parameters.
-  : `ast`. The AST of a Caracal program, as returned by parseit.parse.
-  : `state`. A Lua table holding the initial state of the Caracal program: values of all variables: simple variables, array items, and functions. See *[State](#state)*, below.
-  : `incall`. A Lua function that inputs (or acts like it inputs) a line of text from the user. This function takes no parameters. It returns the input line as a string with no trailing newline.
-  : `outcall`. A Lua function that outputs (or acts like it outputs) a string. This function takes one parameter: the string to output. It returns nothing. You may assume that this function outputs the string in the manner of `io.write`: output goes to the standard output, and no newline is added.
+<dl>
+  <dt>`ast`</dt>
+  <dd>The AST of a Caracal program, as returned by parseit.parse. </dd>
+  <dt>`state`</dt>
+  <dd>A Lua table holding the initial state of the Caracal program: values of all variables: simple variables, array items, and functions. See *[State](#state)*, below.</dd>
+  <dt>`incall`</dt>
+  <dd>A Lua function that inputs (or acts like it inputs) a line of text from the user. This function takes no parameters. It returns the input line as a string with no trailing newline.</dd>
+  <dt>`outcall`</dt>
+  <dd>A Lua function that outputs (or acts like it outputs) a string. This function takes one parameter: the string to output. It returns nothing. You may assume that this function outputs the string in the manner of `io.write`: output goes to the standard output, and no newline is added.</dd>
+</dl>
   * Function `interp` returns the `state` parameter, modified as appropriate by the execution of the Caracal program. See *[State](#state)*, below.
   * Function `interp` should execute the given AST based on the semantics of the Caracal programming language. See *[Semantics](#semantics)*, below.
   * All I/O performed by function `interp` must be done via calls to the passed functions `incall` and `outcall`.
   * Function `interp` does not need to do any error checking. You may assume that the given AST is correctly formatted. Further, as explained in *[Semantics](#semantics)*, below, the semantics of Caracal includes no fatal runtime errors. Thus, a Caracal program never terminates abnormally; function `interp` does not need to do any error reporting.
+
+* * *
 
 ### State
 * __Caracal Variables__ : The Caracal programming language stores only integer values and functions. Integers can be stored in simple variables or in array items.
@@ -142,6 +153,8 @@ A *For loop* has a “`for`” followed by three things in parentheses. Let us c
 When a *For loop* is executed, the *initialization* is executed (or nothing is done if the *initialization* is omitted). Then the following actions are executed repetitively. The *condition* is evaluated (unless it is omitted). If this value is zero, then execution of the *For loop* terminates. If this vaue is nonzero, or if the *condition* is omitted, then the statement list is executed, followed by the *increment* (or nothing is done, if the *increment* it is omitted). The execution of the repetitive portion then begins again.
 
 __!!__ *For information on determining whether the value of an expression is nonzero, see [Implementation Notes](#implementation), below.* __!!__
+
+* * *
 
 ### Implementation Notes
 
