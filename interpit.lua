@@ -218,16 +218,19 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif ast[i][1] == DQ_OUT then -- DOUBLE QUOTE
                     outcall("\"")
                 elseif ast[i][1] == CHAR_CALL then
-                    print("*** UNIMPLEMENTED WRITE ARG")
+                    local n = eval_expr(ast[i][2])
+                    if n < 0 or n > 255 then
+                        n = 0
+                    end
+                    outcall(string.char(n))
                 else  -- Expression
                     local val = eval_expr(ast[i])
                     outcall(numToStr(val))
                 end
             end
-        elseif ast[1] == FUNC_DEF then
-            local funcname = ast[2]
-            local funcbody = ast[3]
-            state.f[funcname] = funcbody
+        elseif ast[1] == RETURN_STMT then
+            outcall(astToStr(ast))
+            state.v["return"] = eval_expr(ast[2])
         elseif ast[1] == FUNC_CALL then
             local funcname = ast[2]
             local funcbody = state.f[funcname]
@@ -235,30 +238,146 @@ function interpit.interp(ast, state, incall, outcall)
                 funcbody = { STMT_LIST }
             end
             interp_stmt_list(funcbody)
-        else
-            print("*** UNIMPLEMENTED STATEMENT")
+        elseif ast[1] == ASSN_STMT then
+
+        elseif ast[1] == FUNC_DEF then
+            local funcname = ast[2]
+            local funcbody = ast[3]
+            state.f[funcname] = funcbody
+        elseif ast[1] == IF_STMT then
+            print ("IF_STATEMENT UNIMPLEMENTED")
+        elseif ast[1] == FOR_LOOP then
+    
+            print ("FOR_LOOP UNIMPLEMENTED")
         end
     end
 
+    local function equal(x,y) return x==y end
+    local function lthan(x,y) return x<y end
+    local function lethan(x,y) return x<=y end
+
+    local bin_oper = {
+        ["and"] =
+            function (x,y)
+                if x == 0 or y == 0 then
+                    return 0
+                else
+                    return 1
+                end
+            end,
+        ["or"] =
+            function (x,y)
+                if x == 0 and y == 0 then
+                        return 0
+                    else
+                        return 1
+                    end
+                end,
+        ["=="] = function (x,y)
+                    return boolToInt(equal(x,y))
+                 end,
+        ["!="] = function (x,y) return boolToInt(not equal(x,y)) end,
+        ["<"] = function (x,y) return boolToInt(lthan(x,y)) end,
+        ["<="] = function (x,y) return boolToInt(lethan(x,y)) end,
+        [">"] = function (x,y) return boolToInt(not lethan(x,y)) end,
+        [">="] = function (x,y) return boolToInt(not lthan(x,y)) end,
+        ["+"] = function (x,y) return x + y  end,
+        ["-"] = function (x,y) return x - y end,
+        ["*"] = function (x,y) return x * y end,
+        ["/"] =
+            function (x,y)
+                if y == 0 then
+                    return 0
+                else
+                    return x / y
+                end
+            end,
+        ["%"] =
+            function (x,y)
+                if y == 0 then
+                    return 0
+                else
+                    return x % y
+                end
+            end
+    }
+
+    local uni_oper = {
+        ["-"] = function (x) return (-x) end;
+        ["+"] = function (x) return x end;
+        ["not"] = function (x) return equal(x,0) end;
+    }
+
+    local boolean = {
+        ["true"] = 1,
+        ["false"] = 0
+    }
 
     -- eval_expr
     -- Given the AST for an expression, evaluate it and return the
     -- value.
     function eval_expr(ast)
         local result
-
+        --outcall(astToStr(ast[1]))
         if ast[1] == NUMLIT_VAL then
             result = strToNum(ast[2])
         elseif ast[1] == BOOLLIT_VAL then
-            result = boolToInt(ast[2])
-        else
-            print("*** UNIMPLEMENTED EXPRESSION")
-            result = 42  -- DUMMY VALUE
+            result = boolean[ast[2]]
+        -- Skully: https://stackoverflow.com/questions/65746996/using-a-variable-as-arithmetic-operator-in-lua
+        elseif ast[1] == READNUM_CALL then
+            local input = incall()
+            result = strToNum(input)
+        elseif ast[1] == SIMPLE_VAR then
+            local varname = ast[2]
+            local varval = state.v[varname]
+            if varval == nil then
+                varval = 0
+            end
+            result = varval
+        elseif ast[1] == ARRAY_VAR then
+            local arrname = ast[2]
+            local index = eval_expr(ast[3])
+            local arrval = state.a[arrname][index]
+            if not arrval then
+                arrval = 0
+            end
+            result = arrval
+        elseif ast[1] == FUNC_CALL then
+            interp_stmt_list(ast)
+            local funcval = state.v["return"]
+            if not funcval then
+                funcval = 0
+            end
+            result = funcval
+        elseif ast [1][1] == BIN_OP then
+            local op = ast[1][2]
+            local lterm = eval_expr(ast[2])
+            local rterm = eval_expr(ast[3])
+            result = numToInt(bin_oper[op](lterm, rterm))
+        elseif ast [1][1] == UN_OP then
+            local sign = ast[1][2]
+            local factor = eval_expr(ast[2])
+            result = uni_oper[sign](factor)
         end
 
         return result
     end
 
+    -- get_lval
+    -- Retrieves an previously defined Lvalue.
+    function get_lval(ast)
+        local val
+
+        return val
+    end
+
+    -- set_lval
+    -- Assigns an Lvalue to a value.
+    function set_lval(ast)
+        local var
+
+        return var
+    end
 
     -- Body of function interp
     interp_stmt_list(ast)
